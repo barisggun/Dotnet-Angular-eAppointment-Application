@@ -1,6 +1,9 @@
 using DefaultCorsPolicyNugetPackage;
 using eAppointmentServer.Application;
+using eAppointmentServer.Domain.Entities;
 using eAppointmentServer.Infrastructure;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,5 +32,21 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using(var scoped = app.Services.CreateScope())
+{
+	var userManager = scoped.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+	if (!userManager.Users.Any())
+	{
+		userManager.CreateAsync(new()
+		{
+			FirstName = "Deneme",
+			LastName = "User",
+			Email = "admin@admin.com",
+			UserName = "admin",
+
+		}, "123Aa*!").Wait();
+	}
+}
 
 app.Run();
